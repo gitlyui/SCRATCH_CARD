@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scratch ASMR</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to right, #2b5876, #4e4376);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+    }
+
+    .pad-container {
+      display: flex;
+      gap: 30px;
+    }
+
+    .pad {
+      width: 150px;
+      height: 150px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .pad:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>🔊 Scratch ASMR</h1>
+
+  <div class="pad-container">
+    <div class="pad" onclick="playSound('scratch1')">Scratch 1</div>
+    <div class="pad" onclick="playSound('scratch2')">Scratch 2</div>
+    <div class="pad" onclick="playSound('scratch3')">Scratch 3</div>
+  </div>
+
+  <!-- Add your sound files -->
+  <audio id="scratch1" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+  <audio id="scratch2" src="https://www.soundjay.com/button/sounds/button-20.mp3"></audio>
+  <audio id="scratch3" src="https://www.soundjay.com/button/sounds/button-35.mp3"></audio>
+
+  <script>
+    function playSound(id) {
+      const audio = document.getElementById(id);
+      audio.currentTime = 0; // rewind if already playing
+      audio.play();
+    }
+  </script>
+</body>
+</html>
