@@ -2,37 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Scratch ASMR Card</title>
+  <title>Scratch ASMR</title>
   <style>
     body {
       margin: 0;
-      background: #141414;
+      background: linear-gradient(to right, #2b5876, #4e4376);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       overflow: hidden;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
+    }
+
+    canvas {
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.4);
+      cursor: crosshair;
     }
 
     h1 {
       margin-bottom: 20px;
     }
-
-    canvas {
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-      cursor: crosshair;
-    }
   </style>
 </head>
 <body>
-  <h1>✨ Scratch the Card</h1>
+  <h1>🎧 Scratch to Reveal</h1>
   <canvas id="scratchCanvas" width="500" height="300"></canvas>
 
-  <!-- Your custom scratch sound -->
   <audio id="scratchSound" src="scratching-paper-107188.mp3" preload="auto"></audio>
 
   <script>
@@ -40,53 +39,63 @@
     const ctx = canvas.getContext('2d');
     const scratchSound = document.getElementById('scratchSound');
 
-    // Draw top layer (e.g., gray cover)
-    ctx.fillStyle = '#999';
+    // Draw the hidden message
+    const hiddenMessage = () => {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.fillStyle = '#ffffff';
+      tempCtx.font = '40px sans-serif';
+      tempCtx.textAlign = 'center';
+      tempCtx.textBaseline = 'middle';
+      tempCtx.fillText('✨ You Win! ✨', canvas.width / 2, canvas.height / 2);
+      return tempCanvas;
+    };
+
+    const hidden = hiddenMessage();
+    ctx.drawImage(hidden, 0, 0);
+
+    // Cover layer
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#888';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw hidden message/image beneath
-    ctx.font = '48px sans-serif';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('💎 You Won!', canvas.width / 2, canvas.height / 2);
-
-    // Allow erasing with mouse
+    // Switch to erase mode
     ctx.globalCompositeOperation = 'destination-out';
 
-    let isDrawing = false;
+    let drawing = false;
 
     canvas.addEventListener('mousedown', (e) => {
-      isDrawing = true;
+      drawing = true;
       scratchSound.currentTime = 0;
       scratchSound.play();
-      draw(e);
+      erase(e);
     });
 
     canvas.addEventListener('mousemove', (e) => {
-      if (isDrawing) {
-        draw(e);
+      if (drawing) {
+        erase(e);
         if (scratchSound.paused) scratchSound.play();
       }
     });
 
     canvas.addEventListener('mouseup', () => {
-      isDrawing = false;
+      drawing = false;
       scratchSound.pause();
     });
 
     canvas.addEventListener('mouseleave', () => {
-      isDrawing = false;
+      drawing = false;
       scratchSound.pause();
     });
 
-    function draw(e) {
+    function erase(e) {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
       ctx.beginPath();
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.arc(x, y, 25, 0, 2 * Math.PI);
       ctx.fill();
     }
   </script>
