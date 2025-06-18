@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scratch ASMR</title>
   <style>
     body {
@@ -46,94 +47,96 @@
 
   <audio id="scratchSound" src="scratching-paper-107188.mp3" preload="auto"></audio>
 
-<script>
-  const messageCanvas = document.getElementById('messageCanvas');
-  const messageCtx = messageCanvas.getContext('2d');
+  <script>
+    const messageCanvas = document.getElementById('messageCanvas');
+    const messageCtx = messageCanvas.getContext('2d');
 
-  const scratchCanvas = document.getElementById('scratchCanvas');
-  const scratchCtx = scratchCanvas.getContext('2d');
+    const scratchCanvas = document.getElementById('scratchCanvas');
+    const scratchCtx = scratchCanvas.getContext('2d');
 
-  const scratchSound = document.getElementById('scratchSound');
+    const scratchSound = document.getElementById('scratchSound');
 
-  // Draw the hidden message on the background canvas
-  messageCtx.fillStyle = '#ffffff';
-  messageCtx.font = '40px sans-serif';
-  messageCtx.textAlign = 'center';
-  messageCtx.textBaseline = 'middle';
-  messageCtx.fillText('✨ You Win! ✨', messageCanvas.width / 2, messageCanvas.height / 2);
+    // Draw the hidden message
+    messageCtx.fillStyle = '#ffffff';
+    messageCtx.font = '40px sans-serif';
+    messageCtx.textAlign = 'center';
+    messageCtx.textBaseline = 'middle';
+    messageCtx.fillText('✨ You Win! ✨', messageCanvas.width / 2, messageCanvas.height / 2);
 
-  // Draw gray overlay on scratch canvas
-  scratchCtx.fillStyle = '#888';
-  scratchCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+    // Draw gray scratch layer
+    scratchCtx.fillStyle = '#888';
+    scratchCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+    scratchCtx.globalCompositeOperation = 'destination-out';
 
-  // Switch to erase mode
-  scratchCtx.globalCompositeOperation = 'destination-out';
+    let drawing = false;
 
-  let drawing = false;
+    // Mouse events
+    scratchCanvas.addEventListener('mousedown', (e) => {
+      drawing = true;
+      playSound();
+      erase(e.offsetX, e.offsetY);
+    });
 
-  // Mouse events
-  scratchCanvas.addEventListener('mousedown', (e) => {
-    drawing = true;
-    playSound();
-    erase(e.clientX, e.clientY);
-  });
+    scratchCanvas.addEventListener('mousemove', (e) => {
+      if (drawing) erase(e.offsetX, e.offsetY);
+    });
 
-  scratchCanvas.addEventListener('mousemove', (e) => {
-    if (drawing) {
-      erase(e.clientX, e.clientY);
-    }
-  });
+    scratchCanvas.addEventListener('mouseup', () => {
+      drawing = false;
+      stopSound();
+    });
 
-  scratchCanvas.addEventListener('mouseup', () => {
-    drawing = false;
-    stopSound();
-  });
+    scratchCanvas.addEventListener('mouseleave', () => {
+      drawing = false;
+      stopSound();
+    });
 
-  scratchCanvas.addEventListener('mouseleave', () => {
-    drawing = false;
-    stopSound();
-  });
-
-  // Touch events for mobile
-  scratchCanvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    drawing = true;
-    playSound();
-    const touch = e.touches[0];
-    erase(touch.clientX, touch.clientY);
-  });
-
-  scratchCanvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (drawing) {
+    // Touch events for mobile
+    scratchCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      drawing = true;
+      playSound();
       const touch = e.touches[0];
-      erase(touch.clientX, touch.clientY);
+      const pos = getTouchPos(touch);
+      erase(pos.x, pos.y);
+    });
+
+    scratchCanvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (drawing) {
+        const touch = e.touches[0];
+        const pos = getTouchPos(touch);
+        erase(pos.x, pos.y);
+      }
+    });
+
+    scratchCanvas.addEventListener('touchend', () => {
+      drawing = false;
+      stopSound();
+    });
+
+    function getTouchPos(touch) {
+      const rect = scratchCanvas.getBoundingClientRect();
+      return {
+        x: touch.pageX - rect.left,
+        y: touch.pageY - rect.top
+      };
     }
-  });
 
-  scratchCanvas.addEventListener('touchend', () => {
-    drawing = false;
-    stopSound();
-  });
+    function erase(x, y) {
+      scratchCtx.beginPath();
+      scratchCtx.arc(x, y, 25, 0, 2 * Math.PI);
+      scratchCtx.fill();
+    }
 
-  function erase(x, y) {
-    const rect = scratchCanvas.getBoundingClientRect();
-    const localX = x - rect.left;
-    const localY = y - rect.top;
-    scratchCtx.beginPath();
-    scratchCtx.arc(localX, localY, 25, 0, 2 * Math.PI);
-    scratchCtx.fill();
-  }
+    function playSound() {
+      scratchSound.currentTime = 0;
+      scratchSound.play().catch(() => {});
+    }
 
-  function playSound() {
-    scratchSound.currentTime = 0;
-    scratchSound.play().catch(() => {}); // catch autoplay issues
-  }
-
-  function stopSound() {
-    scratchSound.pause();
-  }
-</script>
-
+    function stopSound() {
+      scratchSound.pause();
+    }
+  </script>
 </body>
 </html>
