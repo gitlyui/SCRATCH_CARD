@@ -17,86 +17,91 @@
       overflow: hidden;
     }
 
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #container {
+      position: relative;
+      width: 500px;
+      height: 300px;
+    }
+
     canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
       border-radius: 10px;
       box-shadow: 0 0 30px rgba(0,0,0,0.4);
       cursor: crosshair;
-    }
-
-    h1 {
-      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
   <h1>🎧 Scratch to Reveal</h1>
-  <canvas id="scratchCanvas" width="500" height="300"></canvas>
+  <div id="container">
+    <canvas id="messageCanvas" width="500" height="300"></canvas>
+    <canvas id="scratchCanvas" width="500" height="300"></canvas>
+  </div>
 
   <audio id="scratchSound" src="scratching-paper-107188.mp3" preload="auto"></audio>
 
   <script>
-    const canvas = document.getElementById('scratchCanvas');
-    const ctx = canvas.getContext('2d');
+    const messageCanvas = document.getElementById('messageCanvas');
+    const messageCtx = messageCanvas.getContext('2d');
+
+    const scratchCanvas = document.getElementById('scratchCanvas');
+    const scratchCtx = scratchCanvas.getContext('2d');
+
     const scratchSound = document.getElementById('scratchSound');
 
-    // Draw the hidden message
-    const hiddenMessage = () => {
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.fillStyle = '#ffffff';
-      tempCtx.font = '40px sans-serif';
-      tempCtx.textAlign = 'center';
-      tempCtx.textBaseline = 'middle';
-      tempCtx.fillText('✨ You Win! ✨', canvas.width / 2, canvas.height / 2);
-      return tempCanvas;
-    };
+    // Draw the hidden message on the background canvas
+    messageCtx.fillStyle = '#ffffff';
+    messageCtx.font = '40px sans-serif';
+    messageCtx.textAlign = 'center';
+    messageCtx.textBaseline = 'middle';
+    messageCtx.fillText('✨ You Win! ✨', messageCanvas.width / 2, messageCanvas.height / 2);
 
-    const hidden = hiddenMessage();
-    ctx.drawImage(hidden, 0, 0);
-
-    // Cover layer
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw gray overlay on scratch canvas
+    scratchCtx.fillStyle = '#888';
+    scratchCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
 
     // Switch to erase mode
-    ctx.globalCompositeOperation = 'destination-out';
+    scratchCtx.globalCompositeOperation = 'destination-out';
 
     let drawing = false;
 
-    canvas.addEventListener('mousedown', (e) => {
+    scratchCanvas.addEventListener('mousedown', (e) => {
       drawing = true;
       scratchSound.currentTime = 0;
       scratchSound.play();
       erase(e);
     });
 
-    canvas.addEventListener('mousemove', (e) => {
+    scratchCanvas.addEventListener('mousemove', (e) => {
       if (drawing) {
         erase(e);
         if (scratchSound.paused) scratchSound.play();
       }
     });
 
-    canvas.addEventListener('mouseup', () => {
+    scratchCanvas.addEventListener('mouseup', () => {
       drawing = false;
       scratchSound.pause();
     });
 
-    canvas.addEventListener('mouseleave', () => {
+    scratchCanvas.addEventListener('mouseleave', () => {
       drawing = false;
       scratchSound.pause();
     });
 
     function erase(e) {
-      const rect = canvas.getBoundingClientRect();
+      const rect = scratchCanvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      ctx.beginPath();
-      ctx.arc(x, y, 25, 0, 2 * Math.PI);
-      ctx.fill();
+      scratchCtx.beginPath();
+      scratchCtx.arc(x, y, 25, 0, 2 * Math.PI);
+      scratchCtx.fill();
     }
   </script>
 </body>
