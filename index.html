@@ -2,70 +2,92 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Scratch ASMR</title>
+  <title>Scratch ASMR Card</title>
   <style>
     body {
       margin: 0;
-      background: linear-gradient(to right, #2b5876, #4e4376);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: white;
+      background: #141414;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       overflow: hidden;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
     }
 
     h1 {
-      margin-bottom: 30px;
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+      margin-bottom: 20px;
     }
 
-    .pad-container {
-      display: flex;
-      gap: 30px;
-    }
-
-    .pad {
-      width: 150px;
-      height: 150px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .pad:hover {
-      transform: scale(1.1);
-      background: rgba(255, 255, 255, 0.2);
+    canvas {
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      cursor: crosshair;
     }
   </style>
 </head>
 <body>
-  <h1>🔊 Scratch ASMR</h1>
+  <h1>✨ Scratch the Card</h1>
+  <canvas id="scratchCanvas" width="500" height="300"></canvas>
 
-  <div class="pad-container">
-    <div class="pad" onclick="playSound('scratch1')">Scratch 1</div>
-    <div class="pad" onclick="playSound('scratch2')">Scratch 2</div>
-    <div class="pad" onclick="playSound('scratch3')">Scratch 3</div>
-  </div>
-
-  <!-- Add your sound files -->
-  <audio id="scratch1" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
-  <audio id="scratch2" src="https://www.soundjay.com/button/sounds/button-20.mp3"></audio>
-  <audio id="scratch3" src="https://www.soundjay.com/button/sounds/button-35.mp3"></audio>
+  <!-- Your custom scratch sound -->
+  <audio id="scratchSound" src="scratching-paper-107188.mp3" preload="auto"></audio>
 
   <script>
-    function playSound(id) {
-      const audio = document.getElementById(id);
-      audio.currentTime = 0; // rewind if already playing
-      audio.play();
+    const canvas = document.getElementById('scratchCanvas');
+    const ctx = canvas.getContext('2d');
+    const scratchSound = document.getElementById('scratchSound');
+
+    // Draw top layer (e.g., gray cover)
+    ctx.fillStyle = '#999';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw hidden message/image beneath
+    ctx.font = '48px sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('💎 You Won!', canvas.width / 2, canvas.height / 2);
+
+    // Allow erasing with mouse
+    ctx.globalCompositeOperation = 'destination-out';
+
+    let isDrawing = false;
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      scratchSound.currentTime = 0;
+      scratchSound.play();
+      draw(e);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDrawing) {
+        draw(e);
+        if (scratchSound.paused) scratchSound.play();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      isDrawing = false;
+      scratchSound.pause();
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      isDrawing = false;
+      scratchSound.pause();
+    });
+
+    function draw(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.fill();
     }
   </script>
 </body>
